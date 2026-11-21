@@ -1,0 +1,170 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'maqboolhussain3296@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidCategory(data, categoryId) {
+      return data.keys().hasAll(['id', 'name', 'mainGroup', 'iconKey', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'name', 'mainGroup', 'iconKey', 'createdAt']) &&
+        data.id is string && data.id == categoryId && data.id.size() >= 1 && data.id.size() <= 64 &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 50 &&
+        data.mainGroup in ['Food', 'Medicine', 'Grocery'] &&
+        data.iconKey is string && data.iconKey.size() >= 1 && data.iconKey.size() <= 32 &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidProduct(data, productId) {
+      return data.keys().hasAll(['id', 'name', 'price', 'vendor', 'deliveryTime', 'category', 'mainGroup', 'rating', 'visualType', 'description', 'inStock', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'name', 'price', 'vendor', 'deliveryTime', 'category', 'mainGroup', 'rating', 'tag', 'image', 'visualType', 'description', 'inStock', 'createdAt']) &&
+        data.id is string && data.id == productId && data.id.size() >= 1 && data.id.size() <= 64 &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 120 &&
+        data.price is number && data.price > 0 && data.price <= 500000 &&
+        data.vendor is string && data.vendor.size() >= 1 && data.vendor.size() <= 100 &&
+        data.deliveryTime is string && data.deliveryTime.size() >= 1 && data.deliveryTime.size() <= 40 &&
+        data.category is string && data.category.size() >= 1 && data.category.size() <= 50 &&
+        data.mainGroup in ['Food', 'Medicine', 'Grocery'] &&
+        data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+        (!('tag' in data) || (data.tag is string && data.tag.size() <= 40)) &&
+        (!('image' in data) || (data.image is string && data.image.size() <= 500)) &&
+        data.visualType is string && data.visualType.size() >= 1 && data.visualType.size() <= 40 &&
+        data.description is string && data.description.size() <= 300 &&
+        data.inStock is bool &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidRider(data, riderId) {
+      return data.keys().hasAll(['id', 'name', 'vehicle', 'city', 'rating', 'trips', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'name', 'vehicle', 'city', 'rating', 'trips', 'createdAt']) &&
+        data.id is string && data.id == riderId && data.id.size() >= 1 && data.id.size() <= 64 &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 80 &&
+        data.vehicle in ['Bike', 'Cycle', 'Car / Rickshaw'] &&
+        data.city in ['Khanewal', 'Kabirwala', 'Mian Channu'] &&
+        data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+        data.trips is number && data.trips >= 0 && data.trips <= 1000000 &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidOrder(data, orderId) {
+      return data.keys().hasAll(['id', 'userId', 'customerName', 'phone', 'city', 'address', 'paymentMethod', 'itemsSummary', 'subtotal', 'deliveryFee', 'total', 'hasCustomItems', 'status', 'createdAtLabel', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'userId', 'customerName', 'phone', 'city', 'address', 'paymentMethod', 'itemsSummary', 'subtotal', 'deliveryFee', 'total', 'hasCustomItems', 'status', 'createdAtLabel', 'createdAt']) &&
+        data.id is string && data.id == orderId && data.id.size() >= 1 && data.id.size() <= 64 &&
+        data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+        data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 80 &&
+        data.phone is string && data.phone.size() >= 5 && data.phone.size() <= 24 &&
+        data.city in ['Khanewal', 'Kabirwala', 'Mian Channu'] &&
+        data.address is string && data.address.size() >= 3 && data.address.size() <= 250 &&
+        data.paymentMethod in ['Cash on Delivery', 'JazzCash', 'Easypaisa'] &&
+        data.itemsSummary is string && data.itemsSummary.size() >= 1 && data.itemsSummary.size() <= 500 &&
+        data.subtotal is number && data.subtotal >= 0 && data.subtotal <= 1000000 &&
+        data.deliveryFee is number && data.deliveryFee >= 0 && data.deliveryFee <= 5000 &&
+        data.total is number && data.total >= 0 && data.total <= 1005000 &&
+        data.hasCustomItems is bool &&
+        data.status in ['Pending', 'Confirmed', 'On the Way', 'Delivered'] &&
+        data.createdAtLabel is string && data.createdAtLabel.size() >= 1 && data.createdAtLabel.size() <= 40 &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidRiderApplication(data, applicationId) {
+      return data.keys().hasAll(['id', 'userId', 'fullName', 'phone', 'vehicle', 'city', 'cnic', 'status', 'submittedAt', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'userId', 'fullName', 'phone', 'vehicle', 'city', 'cnic', 'status', 'submittedAt', 'createdAt']) &&
+        data.id is string && data.id == applicationId && data.id.size() >= 1 && data.id.size() <= 64 &&
+        data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 80 &&
+        data.phone is string && data.phone.size() >= 5 && data.phone.size() <= 24 &&
+        data.vehicle in ['Bike', 'Cycle', 'Car / Rickshaw'] &&
+        data.city in ['Khanewal', 'Kabirwala', 'Mian Channu'] &&
+        data.cnic is string && data.cnic.size() >= 5 && data.cnic.size() <= 24 &&
+        data.status in ['Pending', 'Approved', 'Rejected'] &&
+        data.submittedAt is string && data.submittedAt.size() >= 1 && data.submittedAt.size() <= 40 &&
+        data.createdAt is timestamp;
+    }
+
+    // Connection test doc
+    match /test/connection {
+      allow get: if isSignedIn();
+      allow list, write: if false;
+    }
+
+    // Admin registry (read self only, never writable by clients)
+    match /admins/{adminId} {
+      allow get: if isValidId(adminId) && isVerifiedUser() && request.auth.uid == adminId;
+      allow list, create, update, delete: if false;
+    }
+
+    // Public Categories (Everyone sees categories added by Admin)
+    match /categories/{categoryId} {
+      allow get: if isValidId(categoryId);
+      allow list: if true;
+      allow create: if isAdmin() && isValidId(categoryId) && isValidCategory(incoming(), categoryId) && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidId(categoryId) && isValidCategory(incoming(), categoryId) && incoming().createdAt == existing().createdAt;
+      allow delete: if isAdmin() && isValidId(categoryId);
+    }
+
+    // Public Products (Everyone sees products added/updated by Admin)
+    match /products/{productId} {
+      allow get: if isValidId(productId);
+      allow list: if true;
+      allow create: if isAdmin() && isValidId(productId) && isValidProduct(incoming(), productId) && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidId(productId) && isValidProduct(incoming(), productId) && incoming().createdAt == existing().createdAt && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'price', 'vendor', 'deliveryTime', 'category', 'mainGroup', 'rating', 'tag', 'image', 'visualType', 'description', 'inStock']);
+      allow delete: if isAdmin() && isValidId(productId);
+    }
+
+    // Public Active Riders (No PII)
+    match /riders/{riderId} {
+      allow get: if isValidId(riderId);
+      allow list: if true;
+      allow create: if isAdmin() && isValidId(riderId) && isValidRider(incoming(), riderId) && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidId(riderId) && isValidRider(incoming(), riderId) && incoming().createdAt == existing().createdAt;
+      allow delete: if isAdmin() && isValidId(riderId);
+    }
+
+    // Orders (PII isolated to owner or Admin)
+    match /orders/{orderId} {
+      allow get: if isValidId(orderId) && (isAdmin() || (isVerifiedUser() && existing().userId == request.auth.uid));
+      allow list: if isAdmin() || (isVerifiedUser() && resource.data.userId == request.auth.uid);
+      allow create: if isVerifiedUser() && isValidId(orderId) && isValidOrder(incoming(), orderId) && incoming().userId == request.auth.uid && incoming().status == 'Pending' && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidId(orderId) && isValidOrder(incoming(), orderId) && incoming().userId == existing().userId && incoming().createdAt == existing().createdAt && incoming().diff(existing()).affectedKeys().hasOnly(['status']);
+      allow delete: if isAdmin() && isValidId(orderId);
+    }
+
+    // Rider Applications (PII isolated to applicant or Admin)
+    match /riderApplications/{applicationId} {
+      allow get: if isValidId(applicationId) && (isAdmin() || (isVerifiedUser() && existing().userId == request.auth.uid));
+      allow list: if isAdmin() || (isVerifiedUser() && resource.data.userId == request.auth.uid);
+      allow create: if isVerifiedUser() && isValidId(applicationId) && isValidRiderApplication(incoming(), applicationId) && incoming().userId == request.auth.uid && incoming().status == 'Pending' && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidId(applicationId) && isValidRiderApplication(incoming(), applicationId) && incoming().userId == existing().userId && incoming().createdAt == existing().createdAt && incoming().diff(existing()).affectedKeys().hasOnly(['status']);
+      allow delete: if isAdmin() && isValidId(applicationId);
+    }
+  }
+}

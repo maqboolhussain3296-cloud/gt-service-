@@ -1,0 +1,290 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "A storefront product category visible to all customers.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "mainGroup": {
+          "type": "string",
+          "enum": ["Food", "Medicine", "Grocery"]
+        },
+        "iconKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "name", "mainGroup", "iconKey", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "A menu or store item available for delivery on GT Service.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "price": {
+          "type": "number"
+        },
+        "vendor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "deliveryTime": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "mainGroup": {
+          "type": "string",
+          "enum": ["Food", "Medicine", "Grocery"]
+        },
+        "rating": {
+          "type": "number"
+        },
+        "tag": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "image": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "visualType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "inStock": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "name", "price", "vendor", "deliveryTime", "category", "mainGroup", "rating", "visualType", "description", "inStock", "createdAt"]
+    },
+    "Rider": {
+      "title": "Rider",
+      "description": "Publicly visible active delivery rider profile without PII.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "vehicle": {
+          "type": "string",
+          "enum": ["Bike", "Cycle", "Car / Rickshaw"]
+        },
+        "city": {
+          "type": "string",
+          "enum": ["Khanewal", "Kabirwala", "Mian Channu"]
+        },
+        "rating": {
+          "type": "number"
+        },
+        "trips": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "name", "vehicle", "city", "rating", "trips", "createdAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer delivery order containing PII restricted to owner and admin.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "customerName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 24
+        },
+        "city": {
+          "type": "string",
+          "enum": ["Khanewal", "Kabirwala", "Mian Channu"]
+        },
+        "address": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 250
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["Cash on Delivery", "JazzCash", "Easypaisa"]
+        },
+        "itemsSummary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "subtotal": {
+          "type": "number"
+        },
+        "deliveryFee": {
+          "type": "number"
+        },
+        "total": {
+          "type": "number"
+        },
+        "hasCustomItems": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Confirmed", "On the Way", "Delivered"]
+        },
+        "createdAtLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "userId", "customerName", "phone", "city", "address", "paymentMethod", "itemsSummary", "subtotal", "deliveryFee", "total", "hasCustomItems", "status", "createdAtLabel", "createdAt"]
+    },
+    "RiderApplication": {
+      "title": "RiderApplication",
+      "description": "Rider onboarding application containing PII restricted to applicant and admin.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "fullName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 24
+        },
+        "vehicle": {
+          "type": "string",
+          "enum": ["Bike", "Cycle", "Car / Rickshaw"]
+        },
+        "city": {
+          "type": "string",
+          "enum": ["Khanewal", "Kabirwala", "Mian Channu"]
+        },
+        "cnic": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 24
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Approved", "Rejected"]
+        },
+        "submittedAt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "userId", "fullName", "phone", "vehicle", "city", "cnic", "status", "submittedAt", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Public storefront categories managed by admins."
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Public storefront menu and store products managed by admins."
+    },
+    "/riders/{riderId}": {
+      "schema": { "$ref": "#/entities/Rider" },
+      "description": "Public active rider summaries (no PII)."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Customer orders with PII readable only by order owner or admin."
+    },
+    "/riderApplications/{applicationId}": {
+      "schema": { "$ref": "#/entities/RiderApplication" },
+      "description": "Rider applications with CNIC and phone readable only by applicant or admin."
+    }
+  }
+}

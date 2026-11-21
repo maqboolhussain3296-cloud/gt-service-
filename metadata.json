@@ -1,0 +1,6 @@
+{
+  "name": "GT Service",
+  "description": "Sab kuch, bharose ke saath — Khanewal ka apna local delivery platform for food, medicine, grocery, and custom errands.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
